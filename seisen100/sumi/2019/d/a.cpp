@@ -24,13 +24,14 @@ int main(void)
     s[ix] = S[ix]-0x30;
   }
 
+  /*
   for(int i1=0; i1!=N-2; ++i1){
     for(int i2=i1+1; i2!=N-1; ++i2){
-      for(int i3=i2+1; i3!=N; ++i3){
-        vs[s[i1]][s[i2]][s[i3]] = true;
+      for(int ix=0; ix!=10; ++ix)
+        if(s.end() != find(s.begin()+i2+1, s.end(), ix))
+          vs[s[i1]][s[i2]][ix] = true;
         //cout << s[i1] << ":" << s[i2] << ":" << s[i3] << endl;
         //cout << vs[s[i1]][s[i2]][s[i3]] << endl;
-      }
     }
   }
 
@@ -42,6 +43,22 @@ int main(void)
       }
     }
   }
+  */
+ for(int i1=0; i1!=10; ++i1){
+   auto iter1 = find(s.begin(), s.end(), i1);
+   if(iter1==s.end() || iter1>=s.end()-2)
+    continue;
+   for(int i2=0; i2!=10; ++i2){
+     auto iter2 = find(iter1+1, s.end(), i2);
+     if(iter2==s.end() || iter2>=s.end()-1)
+      continue;
+     for(int i3=0; i3!=10; ++i3){
+       auto iter3 = find(iter2+1, s.end(), i3);
+       if(iter3 != s.end())
+        ++count;
+     }
+   }
+ }
   //cout << endl << vs[0][2][2] << ", " << vs[0][2][4] << ", " << vs[2][2][4] << endl;
   cout << count << endl;
 }
