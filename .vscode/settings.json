@@ -2,5 +2,8 @@
   "files.associations": {
     "iostream": "cpp",
     "ostream": "cpp"
+  },
+  "code-runner.executorMap": {
+      "cpp": "g++ $fullFileName -o a.out -g -Wall -fsanitize=undefined -Wno-deprecated -Wno-unneeded-internal-declaration-Wall && valgrind ./a.out -s"
   }
 }

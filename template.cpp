@@ -107,10 +107,11 @@ void bfs(const Graph<T> &G, vector<int> &dist, const int start)
   }
 }
 
+// グラフの周りに余白をつけていること前提
 void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 {
-  for(int row=1; row!=R; ++row){
-    for(int col=1; col!=C; ++col){
+  for(int row=1; row!=R-1; ++row){
+    for(int col=1; col!=C-1; ++col){
       if(board[row][col] == '#')
         continue;
       if(board[row-1][col] == '.')

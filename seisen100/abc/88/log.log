@@ -1,0 +1,11 @@
+xxx Start of fuzzing xxx
+bin:        
+start time: 2020-12-22 01:31:02.977865
+-----------------------------
+
+
+System Dead: (<type 'exceptions.EOFError'>, EOFError(), <traceback object at 0x7eff3c2c9960>)
+
+----------------------------
+xxx End of fuzzing xxx
+total time: 0.229366064072

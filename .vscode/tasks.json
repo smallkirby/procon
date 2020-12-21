@@ -6,6 +6,8 @@
       "command": "/usr/bin/g++",
       "args": [
         "-g",
+        "-Wall",
+        "-fsanitize=undefined", "-Wno-deprecated", "-Wno-unneeded-internal-declaration",
         "${file}",
         "-o",
         "${fileDirname}/${fileBasenameNoExtension}"

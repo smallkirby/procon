@@ -17,7 +17,13 @@
             "compilerPath": "/usr/bin/g++",
             "cStandard": "c11",
             "cppStandard": "c++14",
-            "intelliSenseMode": "gcc-x64"
+            "intelliSenseMode": "gcc-x64",
+            "compilerArgs": [
+              "-Wall",
+              "-fsanitize=undefined",
+              "-Wno-deprecated",
+              "-Wno-unneeded-internal-declaration"
+            ]
         }
     ],
     "version": 4
