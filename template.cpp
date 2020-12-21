@@ -57,7 +57,7 @@ void show2(vector<vector<T>> v)
 // timestamp: タイムスタンプ
 // @return: vの隣接頂点の探索に要した時間
 template<typename T>
-void dfs(const Graph<T> &G, int v, vector<T> &d, vector<long> &f, T &timestamp)
+void dfs(const Graph<T> &G, int v, vector<T> &d, vector<T> &f, T &timestamp)
 {
   d[v] = timestamp++;
   for(auto next_v: G[v]){   // 隣接する頂点を探索

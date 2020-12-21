@@ -41,7 +41,7 @@ void show2(vector<vector<T>> v)
     for(auto _v: __v){
       cout << _v << ", ";
     }
-    cout << ")" << endl;
+    cout << ")" << endl
   }
 }
 /******** end of Utility ***************/
