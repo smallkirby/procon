@@ -37,22 +37,10 @@ void show(vector<T> v)
 }
 
 template<typename T>
-void show(vector<T> v, int maxrow)    // 適度に改行入れるver
-{
-  for(int ix=0; ix!=v.size(); ++ix){
-    if(ix!=0 && ix%maxrow==0)
-      cout << endl;
-    cout << v[ix] << " ";
-  }
-  cout << endl;
-}
-
-template<typename T>
 void show2(vector<vector<T>> v)
 {
-  int ix = 0;
   for(auto __v: v){
-    cout << "[" << ix++ << "] (";
+    cout << "(";
     for(auto _v: __v){
       cout << _v << ", ";
     }
@@ -82,56 +70,53 @@ void dfs(const Graph<T> &G, int v, vector<T> &d, vector<T> &f, T &timestamp)
   f[v] = timestamp++;
 }
 
-// G: Graph
-// dist: startからの最小距離
-// start: start地点
-template<typename T>
-void bfs(const Graph<T> &G, vector<int> &dist, const int start)
-{
-  // init
-  queue<int> que;
-  dist.assign(dist.size(), -1);
-  dist[start] = 0;
-  que.push(start);
-
-  // BFS
-  while(!que.empty()){
-    int v = que.front();
-    que.pop();
-    for(auto next_v: G[v]){
-      if(dist[next_v] != -1)  // 訪問済み
-        continue;
-      dist[next_v] = dist[v] + 1;
-      que.push(next_v);
-    }
-  }
-}
-
-void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
-{
-  for(int row=1; row!=R; ++row){
-    for(int col=1; col!=C; ++col){
-      if(board[row][col] == '#')
-        continue;
-      if(board[row-1][col] == '.')
-        G[(row-1)*C + col].push_back(row*C + col);
-      if(board[row][col-1] == '.')
-        G[(row)*C + col-1].push_back(row*C + col);
-      if(board[row][col+1] == '.')
-        G[(row)*C + col+1].push_back(row*C + col);
-      if(board[row+1][col] == '.')
-        G[(row+1)*C + col].push_back(row*C + col);
-    }
-  }
-}
-
 /******** end of Utility ***************/
+
+int m,n;    // mxn区画。<=90だから、スタート地点は全探索で大丈夫そう。
+int max_counter=0;
+
+void func(vector<vector<int>> &area, int row, int col, int counter) // xとy間違えちゃった...。xはrow、yはcolになってる
+{
+  int x = row, y = col;
+  bool north = area[x][y-1] == 1;
+  bool weast = area[x-1][y] == 1;
+  bool east = area[x+1][y] == 1;
+  bool south = area[x][y+1] == 1;
+  area[x][y] = 0;     // 氷を割る
+
+  if(north)
+    func(area, x, y-1, counter+1);
+  if(weast)
+    func(area, x-1, y, counter+1);
+  if(east)
+    func(area, x+1, y, counter+1);
+  if(south)
+    func(area, x, y+1, counter+1);
+
+  area[x][y] = 1;   // 氷を戻す
+  if(counter+1 > max_counter){
+    max_counter = counter+1;
+  }
+}
 
 int main(void)
 {
   // input
+  cin >> m >> n;
+  vector<vector<int>> area(m+2, vector<int>(n+2, 0)); // 区域外の1マスはあらかじめ0にしておく。
+  for(int ix=0; ix!=m; ++ix){
+    for(int jx=0; jx!=n; ++jx){
+      cin >> area[ix+1][jx+1];
+    }
+  }
 
   // main
+  for(int row=1; row!=m+1; ++row){
+    for(int col=1; col!=n+1; ++col){
+      if(area[row][col] == 1)
+        func(area, row, col, 0);
+    }
+  }
 
-  // print
+  cout << max_counter << endl;
 }

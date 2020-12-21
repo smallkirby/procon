@@ -37,22 +37,10 @@ void show(vector<T> v)
 }
 
 template<typename T>
-void show(vector<T> v, int maxrow)    // 適度に改行入れるver
-{
-  for(int ix=0; ix!=v.size(); ++ix){
-    if(ix!=0 && ix%maxrow==0)
-      cout << endl;
-    cout << v[ix] << " ";
-  }
-  cout << endl;
-}
-
-template<typename T>
 void show2(vector<vector<T>> v)
 {
-  int ix = 0;
   for(auto __v: v){
-    cout << "[" << ix++ << "] (";
+    cout << "(";
     for(auto _v: __v){
       cout << _v << ", ";
     }
@@ -107,31 +95,29 @@ void bfs(const Graph<T> &G, vector<int> &dist, const int start)
   }
 }
 
-void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
-{
-  for(int row=1; row!=R; ++row){
-    for(int col=1; col!=C; ++col){
-      if(board[row][col] == '#')
-        continue;
-      if(board[row-1][col] == '.')
-        G[(row-1)*C + col].push_back(row*C + col);
-      if(board[row][col-1] == '.')
-        G[(row)*C + col-1].push_back(row*C + col);
-      if(board[row][col+1] == '.')
-        G[(row)*C + col+1].push_back(row*C + col);
-      if(board[row+1][col] == '.')
-        G[(row+1)*C + col].push_back(row*C + col);
-    }
-  }
-}
-
 /******** end of Utility ***************/
 
 int main(void)
 {
   // input
+  int n;      // 頂点数
+  cin >> n;
+  Graph<int> G(n);
+  int num, tmp;
+  for(int a=0; a!=n; ++a){
+    cin >> num >> num;
+    for(int ix=0; ix!=num; ++ix){
+      cin >> tmp;
+      G[a].push_back(tmp-1);
+    }
+  }
 
   // main
+  vector<int> dist(n);
+  bfs(G, dist, 0);
 
   // print
+  for(int ix=0; ix!=n; ++ix){
+    cout << ix+1 << " " << dist[ix] << endl;
+  }
 }

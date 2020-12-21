@@ -37,22 +37,10 @@ void show(vector<T> v)
 }
 
 template<typename T>
-void show(vector<T> v, int maxrow)    // 適度に改行入れるver
-{
-  for(int ix=0; ix!=v.size(); ++ix){
-    if(ix!=0 && ix%maxrow==0)
-      cout << endl;
-    cout << v[ix] << " ";
-  }
-  cout << endl;
-}
-
-template<typename T>
 void show2(vector<vector<T>> v)
 {
-  int ix = 0;
   for(auto __v: v){
-    cout << "[" << ix++ << "] (";
+    cout << "(";
     for(auto _v: __v){
       cout << _v << ", ";
     }
@@ -107,6 +95,8 @@ void bfs(const Graph<T> &G, vector<int> &dist, const int start)
   }
 }
 
+/******** end of Utility ***************/
+
 void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 {
   for(int row=1; row!=R; ++row){
@@ -125,13 +115,31 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
   }
 }
 
-/******** end of Utility ***************/
-
 int main(void)
 {
   // input
+  int R, C;     // row, col
+  int start_row, start_col, goal_row, goal_col;
+  cin >> R >> C;
+  cin >> start_row >> start_col;
+  cin >> goal_row >> goal_col;
+  --start_col; --start_row; --goal_col; --goal_row;
+  Graph<int> G(R*C);
+  vector<string> board(R);
+  for(auto&& row: board){
+    cin >> row;
+  }
 
   // main
+  if(R <= 2 || C <= 2){
+    cout << -1 << endl;
+    return 0;
+  }
+
+  vector<int> dist(R*C, -1);
+  genGraph(G, board, R, C);
+  bfs(G, dist, start_row*C + start_col);
 
   // print
+  cout << dist[goal_row*C + goal_col] << endl;
 }

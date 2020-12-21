@@ -127,11 +127,70 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 
 /******** end of Utility ***************/
 
+
+// 実装重いって書いてたけど、全然そうでもなくね??
+void _bfs(vector<vector<int>> &data, vector<int> &dist, int h, int w)
+{
+  // init
+  queue<int> que;
+  pair<int,int> cur(0,0);
+  dist.assign(dist.size(), -1);
+  dist[cur.first*w + cur.second] = 0;
+  que.push(cur.first*w + cur.second);
+
+  // BFS
+  while(!que.empty()){
+    int v = que.front();
+    que.pop();
+    cur = pair<int,int>(v/w, v%w);
+
+    if(cur.first>=1 && dist[(cur.first-1)*w + (cur.second)]==-1 && data[cur.first*2-1][cur.second*2]!=1){
+      dist[(cur.first-1)*w + (cur.second)] = dist[v] + 1;
+      que.push((cur.first-1)*w + (cur.second));
+    }
+    if(cur.second>=1 && dist[(cur.first)*w + (cur.second-1)]==-1 && data[cur.first*2][cur.second*2-1]!=1){
+      dist[(cur.first)*w + (cur.second-1)] = dist[v] + 1;
+      que.push((cur.first)*w + (cur.second-1));
+    }
+    if(cur.second<w-1 && dist[(cur.first)*w + (cur.second+1)]==-1 && data[cur.first*2][cur.second*2+1]!=1){
+      dist[(cur.first)*w + (cur.second+1)] = dist[v] + 1;
+      que.push((cur.first)*w + (cur.second+1));
+    }
+    if(cur.first<h-1 && dist[(cur.first+1)*w + (cur.second)]==-1 && data[cur.first*2+1][cur.second*2]!=1){
+      dist[(cur.first+1)*w + (cur.second)] = dist[v] + 1;
+      que.push((cur.first+1)*w + (cur.second));
+    }
+  }
+}
+
 int main(void)
 {
   // input
+  int w,h;
+  while(true){
+    cin >> w >> h;
+    if(w==0 && h==0)
+      break;
+    vector<vector<int>> data(h*2-1, vector<int>(w*2-1, -1));    // (x,y)から(w,z)にいけるかどうかは、data[y+z][x+w]をみればよい
+    for(int ix=0; ix!=h*2-1; ++ix){
+      for(int jx=0; jx!=w*2-1; ++jx){
+        if(ix%2==0){    // 縦の壁データ
+          if(jx%2==0)
+            continue;
+          cin >> data[ix][jx];
+        }else{          // 横の壁のデータ
+          if(jx%2==1)
+            continue;
+          cin >> data[ix][jx];
+        }
+      }
+    }
 
-  // main
+    // main
+    vector<int> dist(h*w, -1);
+    _bfs(data, dist, h, w);
 
-  // print
+    // print
+    cout << dist[h*w-1]+1 << endl;
+  }
 }
