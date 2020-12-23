@@ -1,11 +1,36 @@
 xxx Start of fuzzing xxx
-bin:        
-start time: 2020-12-22 01:31:02.977865
+bin:        ./a.out
+start time: 2020-12-23 12:54:37.849919
 -----------------------------
 
 
-System Dead: (<type 'exceptions.EOFError'>, EOFError(), <traceback object at 0x7eff3c2c9960>)
+TimeLimitError: exceeds -1 seconds
 
 ----------------------------
 xxx End of fuzzing xxx
-total time: 0.229366064072
+total time: 0.00672602653503
+xxx Start of fuzzing xxx
+bin:        ./a.out
+start time: 2020-12-23 12:54:37.849919
+-----------------------------
+sending 13 13
+...#..#...##.
+.##..###.#..#
+..###.#.###..
+##.#...##..#.
+##...##.#...#
+..#..#.#.##..
+..######.#.##
+...##.#......
+#..##.#.#####
+#..#.#...##.#
+#####..#.#..#
+.##.###...#..
+.##......##..
+
+
+System Dead: (<type 'exceptions.EOFError'>, EOFError(), <traceback object at 0x7f37064295f0>)
+
+----------------------------
+xxx End of fuzzing xxx
+total time: 1.00457000732

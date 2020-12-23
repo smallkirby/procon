@@ -2,7 +2,7 @@
 #encoding: utf-8;
 
 '''
-Fuzzing Test 001
+Fuzzing Test
 '''
 
 from pwn import *
@@ -10,7 +10,7 @@ import sys, os, subprocess
 import random
 import time, datetime
 import argparse
-import threading
+import threading, multiprocessing
 
 FILENAME = "./a.out"
 LIBCNAME = ""
@@ -28,8 +28,9 @@ libc = ELF(LIBCNAME) if LIBCNAME!="" else None
 
 global silent,alive
 
-silent = False
-alive = True
+
+class TimeLimitError(Exception):
+  pass
 
 def wlog(msg):
   global _f
@@ -62,10 +63,19 @@ def l(msg, *args):
   _msg += ")"
   wlog(_msg)
 
+def _terminator(signal, frame):
+  print("Press Ctr+C to fully terminate fuzzesr process")
+  os._exit(3)
+
 def killer():
-  global timelimit, alive
+  global timelimit, alive, killall
   sleep(timelimit)
   alive = False
+  wlog("\n")
+  wlog("TimeLimitError: exceeds {} seconds".format(timelimit))
+  if killall:
+    end_log()
+    os.kill(os.getpid(), signal.SIGUSR1)      # invoke terminator
 
 def initState():
   global alive
@@ -93,10 +103,10 @@ def genpay(w, h):
   for row in range(h):
     for col in range(w):
       if(bin(counter)[2:].rjust(w*h)[row*w+col]=="1"):
-        pay += "#"
+        pay += b"#"
       else:
-        pay += "."
-    pay += "\n"
+        pay += b"."
+    pay += b"\n"
   counter += 1
   pay = b"." + pay[1:]
   pay = pay[:-2] + b"."
@@ -108,10 +118,10 @@ def execbin():
 
   pay = genpay(w, h)
 
-  print("sending {} {}".format(h,w))
-  print(pay)
+  wlog("sending {} {}".format(h,w))
+  wlog(pay)
   c.sendline("{} {}".format(h,w))
-  c.sendline(pay)
+  #c.sendline(pay)
   print("Answer: {}".format(c.recvline()))
   return
 
@@ -122,60 +132,54 @@ if __name__ == "__main__":
     global silent
     global timelimit
     global counter, w, h
-
-    '''
-    counter = 0
-    w = 2
-    h = 2
-    '''
+    global t
+    silent = False
+    alive = True
+    killall = False
 
     # parse args
     ap = argparse.ArgumentParser()
     ap.add_argument('--silent', action='store_const', const=True)
     ap.add_argument('-o', '--output', type=str, help="Output filename", default=LOGDEFNAME)
     ap.add_argument('-t', '--timelimit', type=int, help="Timelimit per single execution (prevent deadlock)", default=1)
+    ap.add_argument('--killall', action='store_const', const=True)
     ap.add_argument('host', type=str, help="Host to run binary", default="l")
+
     args = ap.parse_args()
     _host = args.host
     _outputname = args.output
     silent = args.silent
+    killall = args.killall
     timelimit = args.timelimit
 
     # do my business
     start_log(_outputname)
-    while True:
-      # choose host
-      if _host == "l":
-        c = remote(rhp2['host'],rhp2['port'])
-      elif _host == "v":
-        c = remote(rhp3['host'],rhp3['port'])
-      elif _host == "r":
-        c = remote(rhp1['host'],rhp1['port'])
-      elif _host == "p":
-        c = process("./a.out")
+    try:
+      while True:
+        # choose host
+        if _host == "l":
+          c = remote(rhp2['host'],rhp2['port'])
+        elif _host == "v":
+          c = remote(rhp3['host'],rhp3['port'])
+        elif _host == "r":
+          c = remote(rhp1['host'],rhp1['port'])
+        elif _host == "p":
+          c = process(FILENAME)
 
-      # set time limit
-      t = threading.Thread(target=killer)
-      t.start()
+        # set time limit
+        signal.signal(signal.SIGUSR1, _terminator)
+        t = multiprocessing.Process(target=killer)
+        t.daemon = True
+        t.start()       # start killer thread
 
-      try:
-        initState()
-        execbin()
-        '''
-        if counter >= 2**(w*h):
-          w += 1
-          counter = 0
-          if(w > 50):
-            w = 2
-            h += 1
-            if(h > 50):
-              print("[!] All tests passed!!")
-              exit(0)
-        '''
-      except:
-        wlog("\n")
-        wlog("System Dead: {}".format(sys.exc_info()))
-        end_log()
-        exit(0)
+        initState()     # init state
+        execbin()       # exec main fuzzing
+        t.terminate()   # kill killer thread
+        c.close()
 
-      c.close()
+    except:           # happens some error in the binary. in most cases, it's EOFError
+      wlog("\n")
+      wlog("System Dead: {}".format(sys.exc_info()))
+      end_log()
+      t.terminate()
+      sys.exit(0)
