@@ -129,11 +129,40 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 
 /******** end of Utility ***************/
 
+/*
+dp[i][j]を、「i日目に都市jに着く」にするのか「i日目までに都市jに着く」にするのかどっちがいいだろう
+*/
 int main(void)
 {
   // input
+  int N, M;         // N:都市数  M:日数限界
+  cin >> N >> M;
+  vector<int> D(N); // D[i]: i~i+1までの距離
+  vector<int> C(M); // C[i]: i日目の天気の悪さ
+  for(auto&& d: D)
+    cin >> d;
+  for(auto&& c: C)
+    cin >> c;
+
+  // init
+  vector<vector<int>> dp(N+1, vector<int>(M+1, IMAX));    // dp[i][j]: j日目丁度に都市iに着く時の疲労度の最小値
+                                                        // までに、だと天候探すの面倒そう
+  for(int ix=0; ix<=M; ++ix){
+    dp[0][ix] = 0;
+  }
 
   // main
+  /*
+  あーーーーー、移動にD[ix]かかると思っちゃってたなぁ
+  */
+  for(int ix=0; ix<N; ++ix){        // 都市
+    for(int jx=1; jx<=M; ++jx){     // 日にち
+      for(int kx=0; kx<jx; ++kx){    // 何日から都市iからi+1に出発するか決定
+        dp[ix+1][jx] =  min(dp[ix][kx] + C[jx-1]*D[ix], dp[ix+1][jx]);
+      }
+    }
+  }
 
   // print
+  cout << *min_element(dp[N].begin(), dp[N].end()) << endl;
 }

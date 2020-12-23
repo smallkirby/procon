@@ -129,11 +129,54 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 
 /******** end of Utility ***************/
 
+// 服が着れない日はない
+// 同じ服を何回連続選でもいいし、1度も選ばない服があっても良い
+
 int main(void)
 {
   // input
+  int D, N;     // 日数, 服の数
+  cin >> D >> N;
+  vector<int> T(D);   // 最高気温
+  for(auto&& t: T)
+    cin >> t;
+  vector<int> A(N),B(N),C(N);   // 下限, 上限, 派手さ
+  for(int ix=0; ix!=N; ++ix){
+    cin >> A[ix] >> B[ix] >> C[ix];
+  }
+  /*
+  dp[i][j]を、i日目にN[j]を来た時の求める値の最小値と定義する。
+  i日目: ゼロオリジン
+  j日目: ゼロオリジン
+  このとき、i+1日目に着る服はdp[i][j]のN通りのみから決めることができる
+  dp[i+1][j] = min(|C[j] - C[k]| + dp[i][k]) (0<=k<=N-1)
+  */
+  vector<vector<int>> dp(D, vector<int>(N, 0));
+
+  // init XXX fixme
+  for(int ix=0; ix!=N; ++ix){
+    if(A[ix]<=T[0] && T[0]<=B[ix])
+      dp[0][ix] = 0;
+    else
+      dp[0][ix] = -1;
+  }
 
   // main
+  for(int ix=0; ix<D-1; ++ix){      // day
+    for(int jx=0; jx<N; ++jx){      // day[ix]に着る服
+      if(A[jx]<=T[ix+1] && T[ix+1]<=B[jx]){   // 服jを着れる
+        for(int kx=0; kx!=N; ++kx){           // 前日の服k
+          if(dp[ix][kx]!=-1){                 // 前日にkを着ることが可能であれば
+            dp[ix+1][jx] = max(dp[ix+1][jx], dp[ix][kx] + abs(C[jx] - C[kx]));
+          }
+        }
+      }else{                                      // 服jを着れない
+        dp[ix+1][jx] = -1;
+      }
+    }
+  }
 
   // print
+  //show2(dp);
+  cout << *max_element(dp[D-1].begin(), dp[D-1].end()) << endl;
 }

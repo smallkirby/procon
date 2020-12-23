@@ -131,8 +131,65 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 int main(void)
 {
   // input
+  int N, K, tmp1, tmp2;        // total day, fixed days
+  cin >> N >> K;
+  /*
+  0: トマト1連
+  1: トマト2連
+  2: クリーム1連
+  3: クリーム2連
+  4: バジル1連
+  5: バジル2連
+  */
+  vector<vector<long>> dp(N, vector<long>(6, 0));
+  vector<int> fixed_days(N, -1);
+  for(int ix=0; ix!=K; ++ix){
+    cin >> tmp1 >> tmp2;
+    fixed_days[tmp1-1] = tmp2;
+  }
+
+  // init
+  if(fixed_days[0] != -1){
+    dp[0][(fixed_days[0]-1)*2] = 1;
+  }else{
+    dp[0][0] = 1;
+    dp[0][2] = 1;
+    dp[0][4] = 1;
+  }
 
   // main
+  long tmpsum, fmenu;
+  for(int ix=0; ix<N-1; ++ix){      // ix: メニューが確定している日付
+    if(fixed_days[ix+1] != -1){
+      fmenu = fixed_days[ix+1] - 1;
+      tmpsum = 0;
+      for(int kx=0; kx!=6; ++kx){
+        if(kx != fmenu*2 && kx != fmenu*2+1){
+          tmpsum += dp[ix][kx] % 10000;
+        }
+      }
+      dp[ix+1][fmenu*2] = tmpsum % 10000;
+      dp[ix+1][fmenu*2 + 1] = dp[ix][fmenu*2] % 10000;
+
+    }else{
+      // トマト
+      dp[ix+1][0] = (dp[ix][2] + dp[ix][3] + dp[ix][4] + dp[ix][5]) % 10000;
+      dp[ix+1][1] = dp[ix][0] % 10000;
+      // クリーム
+      dp[ix+1][2] = (dp[ix][0] + dp[ix][1] + dp[ix][4] + dp[ix][5]) % 10000;
+      dp[ix+1][3] = dp[ix][2] % 10000;
+      // バジル
+      dp[ix+1][4] = (dp[ix][0] + dp[ix][1] + dp[ix][2] + dp[ix][3]) % 10000;
+      dp[ix+1][5] = dp[ix][4] % 10000;
+    }
+  }
 
   // print
+  //show2(dp);
+  long sum = 0;
+  for(auto d: dp[N-1]){
+    sum += d;
+    sum %= 10000;
+  }
+  cout << sum << endl;
 }
