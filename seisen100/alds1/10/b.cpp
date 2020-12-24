@@ -132,56 +132,44 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 int main(void)
 {
   // input
-  int N;        // 5xNの旗 <=999
-  cin >> N;
-  string tmpstr;
-  vector<vector<int>> S(5, vector<int>(N));     // R=0 B=1 W=2 #=3
-  for(int ix=0; ix!=5; ++ix){
-    cin >> tmpstr;
-    for(int jx=0; jx!=N; ++jx){
-      auto c = tmpstr[jx];
-      if(c == 'R')
-        S[ix][jx] = 0;
-      else if(c == 'B')
-        S[ix][jx] = 1;
-      else if(c == 'W')
-        S[ix][jx] = 2;
-      else if(c == '#')
-        S[ix][jx] = 3;
-    }
+  int n;
+  cin >> n;
+  vector<int> r(n);
+  vector<int> c(n);
+  for(int ix=0; ix!=n; ++ix){
+    cin >> r[ix] >> c[ix];
   }
 
   // init
   /*
-  dp[i][j]は、第i列(0-index)までを塗りつぶし、且つ第i列をj色(0-index)で塗りつぶす時の合計塗り替えマス個数
-  i列をj色で塗りつぶせない場合には0を入れて、以降これを伝播する
+  =概要=
+  dp[i][j]はMi,...Mjまで見た時の最小スカラ乗算回数
+  i<=jを考えるため上三角行列しか使用しない
+  =init=
+  また、dp[i][i]は0
+  dp[i][i+1]は固定
+  =漸化式=
+  dp[i][j] = min(dp[i][k] + dp[k+1][j] + r[i]*c[k]*c[j]) (i<=k<=j)
+  右上に向かって進んでいく
   */
-  vector<vector<int>> dp(N, vector<int>(3, IMAX));    // 黒は要らない
-  for(int color=0; color<=2; ++color){
-    int _count = 0;
-    for(int row=0; row!=5; ++row){
-      if(S[row][0] != color)
-        ++_count;
-    }
-    dp[0][color] = _count;
+  vector<vector<int>> dp(n, vector<int>(n, IMAX));
+  for(int ix=0; ix!=n; ++ix){
+    dp[ix][ix] = 0;
+    if(ix!=n-1)
+      dp[ix][ix+1] = r[ix]*c[ix]*c[ix+1];
   }
 
   // main
-  for(int col=0; col<N-1; ++col){
-    for(int color=0; color<=2; ++color){                    // col+1列目をcolorで塗る
-      for(int prev_color=0; prev_color<=2; ++prev_color){   // col列目がprev_colorだったとする
-        if(color != prev_color){                            // col+1列目と違う色のときのみカウント
-          int C = 0;
-          for(int row=0; row!=5; ++row)                     // 塗り替えるマスの個数をカウント
-            if(S[row][col+1] != color)
-              ++C;
-          dp[col+1][color] = min(dp[col+1][color], dp[col][prev_color] + C);
-        }
+  for(int jbase=2; jbase<=n-1; ++jbase){
+    for(int i=0; i<=(n-1)-jbase; ++i){
+      for(int kx=i; kx<=jbase+i-1; ++kx){
+        dp[i][jbase+i] = min(dp[i][jbase+i], dp[i][kx] + dp[kx+1][jbase+i] + r[i]*c[kx]*c[jbase+i]);
       }
+      //cout << "("<<i<<","<<jbase+i<<"): "<<dp[i][jbase+i]<<endl;
     }
   }
 
   // print
   //show2(dp);
-  cout << *min_element(dp[N-1].begin(), dp[N-1].end()) << endl;
+  cout << dp[0][n-1] << endl;
 }

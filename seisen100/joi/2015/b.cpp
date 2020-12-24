@@ -129,59 +129,63 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 
 /******** end of Utility ***************/
 
+vector<long> A;
+vector<vector<long>> dp;
+long N;
+unsigned long num_func_called;
+
+// A[l:r+1]まで残っている場合のJOIくんが取り得る最大値を返す(それまでに取った分はカウントしない)
+long func(long l, long r, bool ioi_turn)
+{
+  if(dp[l%N][r%N] != -1){     // 既に探索済み。よってメモ化した値を使う
+    return dp[l%N][r%N];
+  }
+  if(l == r){           // 最後の一切れ
+    if(ioi_turn){
+      dp[l%N][r%N] = 0;
+      return 0;
+    }else{
+      dp[l%N][r%N] = A[l%N];
+      return A[l%N];
+    }
+  }
+
+  if(ioi_turn){   // IOIちゃんのターン
+    if(A[l%N] > A[r%N]){    // 左端の方がでかい
+      return dp[l%N][r%N] = func(l+1, r, false);   // 左端をとって再計算(取ったA[l]はIOIちゃんのだからカウントしない)
+    }else{
+      return dp[l%N][r%N] = func(l, r-1, false);
+    }
+  }else{          // JOIくんのターン
+    return dp[l%N][r%N] = max(func(l+1, r, true) + A[l%N], func(l, r-1, true) + A[r%N]);    // 左端と右端を食べた場合でスコアの大きい方を選ぶ
+  }
+}
+
 int main(void)
 {
   // input
-  int N;        // 5xNの旗 <=999
   cin >> N;
-  string tmpstr;
-  vector<vector<int>> S(5, vector<int>(N));     // R=0 B=1 W=2 #=3
-  for(int ix=0; ix!=5; ++ix){
-    cin >> tmpstr;
-    for(int jx=0; jx!=N; ++jx){
-      auto c = tmpstr[jx];
-      if(c == 'R')
-        S[ix][jx] = 0;
-      else if(c == 'B')
-        S[ix][jx] = 1;
-      else if(c == 'W')
-        S[ix][jx] = 2;
-      else if(c == '#')
-        S[ix][jx] = 3;
-    }
-  }
+  vector<long> _A(N);
+  for(auto&& a: _A)
+    cin >> a;
+  A.resize(2*N);
+  A = _A;
+  copy(A.begin(), A.end(), back_inserter(A));     // 円環だと参照しにくいから2個連結する. これで(N-1)+3番目にアクセスするときにはA[N-1+3]でいける
 
   // init
   /*
-  dp[i][j]は、第i列(0-index)までを塗りつぶし、且つ第i列をj色(0-index)で塗りつぶす時の合計塗り替えマス個数
-  i列をj色で塗りつぶせない場合には0を入れて、以降これを伝播する
+  A[i]からA[j]まで残っている場合のJOI君の最大値
+  i>=jでもよい
   */
-  vector<vector<int>> dp(N, vector<int>(3, IMAX));    // 黒は要らない
-  for(int color=0; color<=2; ++color){
-    int _count = 0;
-    for(int row=0; row!=5; ++row){
-      if(S[row][0] != color)
-        ++_count;
-    }
-    dp[0][color] = _count;
-  }
+  dp.resize(N, vector<long>(N, -1));
 
   // main
-  for(int col=0; col<N-1; ++col){
-    for(int color=0; color<=2; ++color){                    // col+1列目をcolorで塗る
-      for(int prev_color=0; prev_color<=2; ++prev_color){   // col列目がprev_colorだったとする
-        if(color != prev_color){                            // col+1列目と違う色のときのみカウント
-          int C = 0;
-          for(int row=0; row!=5; ++row)                     // 塗り替えるマスの個数をカウント
-            if(S[row][col+1] != color)
-              ++C;
-          dp[col+1][color] = min(dp[col+1][color], dp[col][prev_color] + C);
-        }
-      }
-    }
+  long tmp = -1;
+  for(int ix=0; ix!=N; ++ix){     // A[ix]だけ取った状態でスタート
+    //cout << ix+1<<"~"<<ix-1+N<<" eat="<<ix<<" "<<A[ix]<<endl;
+    tmp = max(tmp, func(ix+1, ix+N-1, true) + A[ix]);
   }
 
   // print
-  //show2(dp);
-  cout << *min_element(dp[N-1].begin(), dp[N-1].end()) << endl;
+  cout << tmp << endl;
 }
