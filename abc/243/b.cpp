@@ -135,8 +135,30 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 int main(void)
 {
   // input
+  int N; cin >> N;
+  vector<unsigned int> A(N), B(N);
+  rep(ix, N) {
+    cin >> A[ix];
+  }
+  rep(ix, N) {
+    cin >> B[ix];
+  }
 
   // main
+  unsigned int count = 0;
+  rep(ix, N) {
+    if (A[ix] == B[ix]) ++count;
+  }
+  cout << count << endl;
+
+  count = 0;
+  rep(ix, N) {
+    auto b_it = find(B.begin(), B.end(), A[ix]);
+    if (b_it == B.end()) continue;
+    if (distance(B.begin(), b_it) == ix) continue;
+    ++count;
+  }
+  cout << count << endl;
 
   // print
 }

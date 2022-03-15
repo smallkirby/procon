@@ -1,4 +1,5 @@
 #include<bits/stdc++.h>
+#include <iterator>
 
 #define IMAX 1<<29
 #define PI 3.14159265359
@@ -132,11 +133,38 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 
 /******** end of Utility ***************/
 
+using ptype = pair<pair<unsigned long, unsigned long>, bool>;
+
 int main(void)
 {
   // input
+  unsigned int N; cin >> N;
+  vector<ptype> P(N); // true=right, false=left
+  rep(ix, N) {
+    cin >> P[ix].first.first >> P[ix].first.second;
+  }
+  string S; cin >> S;
+  rep(ix, N) {
+    P[ix].second = (S[ix] == 'R');
+  }
+  sort(P.begin(), P.end(), [](const ptype &a, const ptype &b) { return a.first.second < b.first.second; });
 
-  // main
+  vector<ptype>::iterator end;
+  for (auto start = P.begin(); start < P.end(); start = end) {
+    end = find_if(start, P.end(), [start](const ptype &a) { return a.first.second != start->first.second;});
 
+    vector<ptype> lefters, righters;
+    copy_if(start, end, back_inserter(lefters), [](const ptype &a) { return a.second == false; });
+    copy_if(start, end, back_inserter(righters), [](const ptype &a) { return a.second == true; });
+    sort(lefters.begin(), lefters.end(), [](const ptype &a, const ptype &b){ return a.first.first < b.first.first; });
+    sort(righters.begin(), righters.end(), [](const ptype &a, const ptype &b){ return a.first.first < b.first.first; });
+    if (lefters.empty() || righters.empty()) continue;
+    if (lefters.back().first.first >= righters.front().first.first) {
+      cout << "Yes" << endl;
+      return 0;
+    }
+  }
+
+  cout << "No" << endl;
   // print
 }

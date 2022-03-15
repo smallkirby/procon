@@ -135,8 +135,58 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 int main(void)
 {
   // input
+  unsigned int N; cin >> N;
+  unsigned long X; cin >> X;
+  string S; cin >> S;
 
-  // main
+  stack<char> st;
+  stack<char> trimed_st;
+  for (char c : S) {
+    st.push(c);
+  }
+  while (!st.empty()) {
+    char c = st.top();
+    st.pop();
+    if (!trimed_st.empty() && c != 'U' && trimed_st.top() == 'U') {
+      trimed_st.pop();
+    } else {
+      trimed_st.push(c);
+    }
+  }
 
-  // print
+  string x_str = bitset<64 * 8>(X).to_string();
+  vector<bool> x;
+  for (auto c : x_str) {
+    if (c == '0') x.push_back(0);
+    else x.push_back(1);
+  }
+
+  while (!trimed_st.empty()) {
+    auto c = trimed_st.top();
+    trimed_st.pop();
+    switch (c) {
+    case 'U':
+      x.pop_back();
+      break;
+    case 'L':
+      x.push_back(0);
+      break;
+    case 'R':
+      x.push_back(1);
+      break;
+    }
+  }
+
+  unsigned long long answer = 0;
+  unsigned int count = 0;
+  while (!x.empty()) {
+    auto b = x.back();
+    x.pop_back();
+    if (b) {
+      answer += 1ULL << count;
+    }
+    ++count;
+  }
+
+  cout << answer << endl;
 }

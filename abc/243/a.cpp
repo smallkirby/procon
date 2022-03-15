@@ -135,8 +135,33 @@ void genGraph(Graph<int> &G, vector<string> &board, int R, int C)
 int main(void)
 {
   // input
+  int A,B,C,V;
+  cin >> V >> A >> B >> C;
 
   // main
+  unsigned int count = 0;
+  while (V >= 0) {
+    if (count % 3 == 0) {
+      V -= A;
+      if (V < 0) {
+        cout << "F" << endl;
+        return 0;
+      }
+    } else if (count % 3 == 1) {
+      V -= B;
+      if (V < 0) {
+        cout << "M" << endl;
+        return 0;
+      }
+    } else if (count % 3 == 2) {
+      V -= C;
+      if (V < 0) {
+        cout << "T" << endl;
+        return 0;
+      }
+    }
+    ++count;
+  }
 
   // print
 }
