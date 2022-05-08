@@ -90,8 +90,21 @@ void show2(vector<vector<T>> v)
 int main(void)
 {
   // input
+  ulong N,A,B; cin >> N >> A >> B;
 
   // main
+  for (int h = 0; h != N; ++h) {
+    for (int sh = 0; sh != A; ++sh) {
+      for (int w = 0; w != N; ++w) {
+        if ((h + w)%2 == 0) {
+          cout << string(B, '.');
+        } else {
+          cout << string(B, '#');
+        }
+      }
+      cout << endl;
+    }
+  }
 
   // print
 }

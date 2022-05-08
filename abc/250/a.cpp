@@ -90,8 +90,16 @@ void show2(vector<vector<T>> v)
 int main(void)
 {
   // input
+  ulong H,W; cin >> H >> W;
+  ulong R,C; cin >> R >> C;
 
   // main
+  ulong result = 0;
+  if (R != 1) ++result;
+  if (R != H) ++result;
+  if (C != 1) ++result;
+  if (C != W) ++result;
 
   // print
+  cout << result << endl;
 }

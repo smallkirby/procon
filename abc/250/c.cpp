@@ -87,11 +87,53 @@ void show2(vector<vector<T>> v)
 
 /******** end of Utility ***************/
 
+struct hoge {
+  ulong ix;
+  ulong val;
+};
+
 int main(void)
 {
   // input
+  ulong N,Q; cin >> N >> Q;
+  vector<ulong> val(N), pos(N); rep(ix, N) {
+    val[ix] = ix;
+    pos[ix] = ix;
+  }
 
   // main
+  rep(q, Q) {
+    ulong ope_val; cin >> ope_val;
+    --ope_val;
+    ulong index = val[ope_val];
+
+    if (index == N-1) {
+      ulong other_val = pos[index-1];
+
+      pos[index-1] = ope_val;
+      pos[index] = other_val;
+
+      val[other_val] = index;
+      val[ope_val] = index-1;
+    } else {
+      ulong other_val = pos[index+1];
+
+      pos[index+1] = ope_val;
+      pos[index] = other_val;
+
+      val[other_val] = index;
+      val[ope_val] = index+1;
+    }
+
+    //cout << "val: "; show(val);
+    //cout << "pos: "; show(pos);
+  }
 
   // print
+  rep(ix, N) pos[ix]++;
+  rep (ix, N) {
+    if (ix == 0) cout << pos[ix];
+    else cout << " " << pos[ix];
+  }
+  cout << endl;
 }
